@@ -302,89 +302,129 @@ function showLoading() {
 
 // Show message with typing animation
 function showMessage(message) {
+    console.log('showMessage called with:', message);
+    
     currentMessage = message;
     isUnlocked = false;
     
-    loadingSection.classList.add('hidden');
-    messageSection.classList.remove('hidden');
-    
-    // Reset states
-    lockedContent.classList.add('hidden');
-    fullText.classList.add('hidden');
-    typingIndicator.classList.remove('hidden');
-    actionButtons.classList.add('hidden');
-    
-    // Start typing animation
-    typeMessage(message, previewText, () => {
-        typingIndicator.classList.add('hidden');
+    try {
+        loadingSection.classList.add('hidden');
+        messageSection.classList.remove('hidden');
         
-        // Split message for preview (first 3-4 lines)
-        const lines = message.split('\n');
-        const previewLines = lines.slice(0, 3).join('\n');
-        const remainingLines = lines.slice(3).join('\n');
+        console.log('Switched to message section');
         
-        if (hasUsedFreeMessage) {
-            // Paid user - show locked content
-            previewText.textContent = previewLines;
-            remainingText.textContent = remainingLines;
-            lockedContent.classList.remove('hidden');
-            actionButtons.classList.remove('hidden');
-        } else {
-            // First free user - show full message
-            previewText.textContent = previewLines;
-            if (remainingLines.trim()) {
-                fullText.textContent = remainingLines;
-                fullText.classList.remove('hidden');
-            }
-            actionButtons.classList.remove('hidden');
+        // Reset states
+        lockedContent.classList.add('hidden');
+        fullText.classList.add('hidden');
+        typingIndicator.classList.remove('hidden');
+        actionButtons.classList.add('hidden');
+        
+        console.log('States reset, starting typing animation');
+        
+        // Start typing animation
+        typeMessage(message, previewText, () => {
+            console.log('Typing animation completed');
+            typingIndicator.classList.add('hidden');
             
-            // Mark free message as used
-            const userId = getUserId();
-            markFreeMessageUsed(userId);
-        }
-    });
+            // Split message for preview (first 3-4 lines)
+            const lines = message.split('\n');
+            const previewLines = lines.slice(0, 3).join('\n');
+            const remainingLines = lines.slice(3).join('\n');
+            
+            console.log('Message split - preview lines:', previewLines.length);
+            
+            if (hasUsedFreeMessage) {
+                // Paid user - show locked content
+                console.log('Showing locked content for paid user');
+                previewText.textContent = previewLines;
+                remainingText.textContent = remainingLines;
+                lockedContent.classList.remove('hidden');
+                actionButtons.classList.remove('hidden');
+            } else {
+                // First free user - show full message
+                console.log('Showing full message for free user');
+                previewText.textContent = previewLines;
+                if (remainingLines.trim()) {
+                    fullText.textContent = remainingLines;
+                    fullText.classList.remove('hidden');
+                }
+                actionButtons.classList.remove('hidden');
+                
+                // Mark free message as used
+                const userId = getUserId();
+                markFreeMessageUsed(userId);
+            }
+        });
+    } catch (error) {
+        console.error('Error in showMessage:', error);
+        // Fallback - show message directly
+        previewText.textContent = message;
+        loadingSection.classList.add('hidden');
+        messageSection.classList.remove('hidden');
+        typingIndicator.classList.add('hidden');
+        actionButtons.classList.remove('hidden');
+    }
 }
 
-// Handle form submission
-messageForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing app...');
     
-    const formData = {
-        name: document.getElementById('name').value,
-        age: document.getElementById('age').value,
-        lifeStage: document.getElementById('lifeStage').value,
-        relationshipStatus: document.getElementById('relationshipStatus').value,
-        mainChallenge: document.getElementById('mainChallenge').value,
-        personality: document.getElementById('personality').value,
-        hobbies: document.getElementById('hobbies').value,
-        dreams: document.getElementById('dreams').value,
-        fears: document.getElementById('fears').value,
-        currentSituation: document.getElementById('currentSituation').value
-    };
+    // Check if all required elements exist
+    if (!messageForm || !submitBtn || !inputSection || !loadingSection || !messageSection) {
+        console.error('Required DOM elements not found!');
+        return;
+    }
     
-    // Update button text
-    submitBtn.textContent = 'Revealing Your Future...';
+    console.log('All DOM elements found, setting up event listeners...');
     
-    // Disable submit button
-    submitBtn.disabled = true;
+    // Initialize free message status
+    checkFreeMessageStatus();
     
-    try {
-        showLoading();
-        
-        // Check if API key is available
-        if (!apiKey || apiKey === 'your_openai_api_key_here') {
-            console.log('Using demo message - no API key');
-            // Create personalized demo message
-            const personalDetails = [];
-            if (formData.personality) personalDetails.push(formData.personality);
-            if (formData.hobbies) personalDetails.push(formData.hobbies);
-            if (formData.lifeStage) personalDetails.push(formData.lifeStage);
-            if (formData.dreams) personalDetails.push(formData.dreams);
+    // Handle form submission
+    messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log('Form submitted - preventing default behavior');
             
-            const personalNote = personalDetails.length > 0 ? ` I know you're ${personalDetails.join(' and ')}.` : '';
-            const challengeNote = formData.mainChallenge ? ` This whole ${formData.mainChallenge} situation you're worried about?` : ' This challenge you are facing?';
+            const formData = {
+                name: document.getElementById('name').value,
+                age: document.getElementById('age').value,
+                lifeStage: document.getElementById('lifeStage').value,
+                relationshipStatus: document.getElementById('relationshipStatus').value,
+                mainChallenge: document.getElementById('mainChallenge').value,
+                personality: document.getElementById('personality').value,
+                hobbies: document.getElementById('hobbies').value,
+                dreams: document.getElementById('dreams').value,
+                fears: document.getElementById('fears').value,
+                currentSituation: document.getElementById('currentSituation').value
+            };
             
-            const demoMessage = `Hey ${formData.name}, 
+            console.log('Form data:', formData);
+            
+            // Update button text
+            submitBtn.textContent = 'Revealing Your Future...';
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            
+            try {
+                console.log('Starting message generation...');
+                showLoading();
+                
+                // Check if API key is available
+                if (!apiKey || apiKey === 'your_openai_api_key_here') {
+                    console.log('Using demo message - no API key');
+                    // Create personalized demo message
+                    const personalDetails = [];
+                    if (formData.personality) personalDetails.push(formData.personality);
+                    if (formData.hobbies) personalDetails.push(formData.hobbies);
+                    if (formData.lifeStage) personalDetails.push(formData.lifeStage);
+                    if (formData.dreams) personalDetails.push(formData.dreams);
+                    
+                    const personalNote = personalDetails.length > 0 ? ` I know you're ${personalDetails.join(' and ')}.` : '';
+                    const challengeNote = formData.mainChallenge ? ` This whole ${formData.mainChallenge} situation you're worried about?` : ' This challenge you are facing?';
+                    
+                    const demoMessage = `Hey ${formData.name}, 
 
 It's me - you, but 5 years wiser and with way better hair. Remember${challengeNote} Funny story about that...
 
@@ -398,25 +438,27 @@ Keep going. You're doing better than you think.
 
 With love from your future self`;
 
-            // Fast loading - no delay
-            showMessage(demoMessage);
-        } else {
-            console.log('Using real OpenAI API');
-            // Use real API
-            generateFutureMessage(formData).then(message => {
-                showMessage(message);
-            }).catch(error => {
-                console.error('API Error:', error);
-                // Fallback to demo message
-                showMessage(demoMessage);
-            });
-        }
-    } catch (error) {
-        console.error('Full error details:', error);
-        console.error('Error message:', error.message);
-        
-        // Always show something to user
-        const fallbackMessage = `Hey ${formData.name || 'Friend'},
+                    // Fast loading - no delay
+                    console.log('Showing demo message...');
+                    showMessage(demoMessage);
+                } else {
+                    console.log('Using real OpenAI API');
+                    // Use real API
+                    generateFutureMessage(formData).then(message => {
+                        console.log('API message generated:', message);
+                        showMessage(message);
+                    }).catch(error => {
+                        console.error('API Error:', error);
+                        // Fallback to demo message
+                        showMessage(demoMessage);
+                    });
+                }
+            } catch (error) {
+                console.error('Full error details:', error);
+                console.error('Error message:', error.message);
+                
+                // Always show something to user
+                const fallbackMessage = `Hey ${formData.name || 'Friend'},
 
 Sometimes the universe takes time to connect. But I want you to know that everything you're going through right now will make sense one day.
 
@@ -427,80 +469,83 @@ Keep going. Your future self is waiting.
 With love,
 Your Future Self`;
 
-        showMessage(fallbackMessage);
-    } finally {
-        // Reset submit button
-        submitBtn.disabled = false;
-        submitBtn.textContent = hasUsedFreeMessage ? 'Generate Message' : 'Reveal My Future Message';
-    }
-});
-
-// Handle unlock button
-unlockBtn.addEventListener('click', () => {
-    unlockBtn.textContent = 'Opening payment...';
-    unlockBtn.disabled = true;
-    
-    initiateRazorpayPayment(() => {
-        // Payment successful callback
-        isUnlocked = true;
-        lockedContent.classList.add('hidden');
-        fullText.textContent = currentMessage;
-        fullText.classList.remove('hidden');
-        fullText.classList.add('animate-fade-in');
+                showMessage(fallbackMessage);
+            } finally {
+                // Reset submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = hasUsedFreeMessage ? 'Generate Message' : 'Reveal My Future Message';
+            }
+        });
         
-        // Reset unlock button
-        unlockBtn.textContent = 'Unlock Full Message – ₹9';
-        unlockBtn.disabled = false;
-    });
-});
+        // Handle unlock button
+        unlockBtn.addEventListener('click', () => {
+            unlockBtn.textContent = 'Opening payment...';
+            unlockBtn.disabled = true;
+            
+            initiateRazorpayPayment(() => {
+                // Payment successful callback
+                isUnlocked = true;
+                lockedContent.classList.add('hidden');
+                fullText.textContent = currentMessage;
+                fullText.classList.remove('hidden');
+                fullText.classList.add('animate-fade-in');
+                
+                // Reset unlock button
+                unlockBtn.textContent = 'Unlock Full Message – ₹9';
+                unlockBtn.disabled = false;
+            });
+        });
 
-// Handle try again button
-tryAgainBtn.addEventListener('click', () => {
-    // Reset all states
-    messageSection.classList.add('hidden');
-    loadingSection.classList.add('hidden');
-    inputSection.classList.remove('hidden');
-    
-    // Reset form
-    messageForm.reset();
-    
-    // Reset message states
-    currentMessage = '';
-    isUnlocked = false;
-    
-    // Reset UI elements
-    previewText.textContent = '';
-    remainingText.textContent = '';
-    fullText.textContent = '';
-    lockedContent.classList.add('hidden');
-    fullText.classList.add('hidden');
-    typingIndicator.classList.add('hidden');
-    actionButtons.classList.add('hidden');
-    
-    // Reset submit button based on free message status
-    submitBtn.disabled = false;
-    submitBtn.textContent = hasUsedFreeMessage ? 'Generate Message' : 'Reveal My Future Message';
-});
+        // Handle try again button
+        tryAgainBtn.addEventListener('click', () => {
+            // Reset all states
+            messageSection.classList.add('hidden');
+            loadingSection.classList.add('hidden');
+            inputSection.classList.remove('hidden');
+            
+            // Reset form
+            messageForm.reset();
+            
+            // Reset message states
+            currentMessage = '';
+            isUnlocked = false;
+            
+            // Reset UI elements
+            previewText.textContent = '';
+            remainingText.textContent = '';
+            fullText.textContent = '';
+            lockedContent.classList.add('hidden');
+            fullText.classList.add('hidden');
+            typingIndicator.classList.add('hidden');
+            actionButtons.classList.add('hidden');
+            
+            // Reset submit button based on free message status
+            submitBtn.disabled = false;
+            submitBtn.textContent = hasUsedFreeMessage ? 'Generate Message' : 'Reveal My Future Message';
+        });
 
-// Handle share button
-shareBtn.addEventListener('click', () => {
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(currentMessage);
-        alert('Message copied to clipboard!');
-    } else {
-        alert('Could not copy message to clipboard.');
-    }
+        // Handle share button
+        shareBtn.addEventListener('click', () => {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(currentMessage);
+                alert('Message copied to clipboard!');
+            } else {
+                alert('Could not copy message to clipboard.');
+            }
+        });
+        
+        console.log('App initialization complete');
+        
+        // Add fade-in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-in;
+            }
+        `;
+        document.head.appendChild(style);
 });
-
-// Add fade-in animation
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    .animate-fade-in {
-        animation: fadeIn 0.5s ease-in;
-    }
-`;
-document.head.appendChild(style);
