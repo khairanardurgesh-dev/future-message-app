@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Message AI</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">✨ Future Message 💕</h1>
+            <p class="subtitle">A message from your future self awaits...</p>
+        </header>
+
+        <main class="main-content">
+            <!-- Input Form -->
+            <div id="inputSection" class="card">
+                <h2 class="card-title">🌟 Your Future Awaits</h2>
+                <p class="card-subtitle">Sometimes the voice you need to hear most isn't from an expert... it's from someone who's already walked your path.</p>
+                <form id="messageForm" class="form">
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" name="name" required placeholder="What should I call you?">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age">Your Age</label>
+                        <input type="number" id="age" name="age" min="13" max="100" required placeholder="How old are you?">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lifeStage">Life Stage</label>
+                        <select id="lifeStage" name="lifeStage">
+                            <option value="">Select your current stage</option>
+                            <option value="student">Student</option>
+                            <option value="earlyCareer">Early Career (0-3 years)</option>
+                            <option value="midCareer">Mid Career (4-10 years)</option>
+                            <option value="seniorCareer">Senior Career (10+ years)</option>
+                            <option value="entrepreneur">Entrepreneur/Business Owner</option>
+                            <option value="freelancer">Freelancer/Self-Employed</option>
+                            <option value="homemaker">Homemaker</option>
+                            <option value="retired">Retired</option>
+                            <option value="gapYear">Gap Year/Transitioning</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="relationshipStatus">Relationship Status</label>
+                        <select id="relationshipStatus" name="relationshipStatus">
+                            <option value="">Select status</option>
+                            <option value="single">Single and Happy</option>
+                            <option value="singleSearching">Single and Looking</option>
+                            <option value="newRelationship">New Relationship (less than 6 months)</option>
+                            <option value="establishedRelationship">Established Relationship</option>
+                            <option value="engaged">Engaged</option>
+                            <option value="married">Married</option>
+                            <option value="divorced">Divorced</option>
+                            <option value="complicated">It's Complicated</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mainChallenge">What's Your Biggest Challenge Right Now?</label>
+                        <select id="mainChallenge" name="mainChallenge">
+                            <option value="">Choose your main challenge</option>
+                            <option value="love">Finding or maintaining love</option>
+                            <option value="career">Career direction or growth</option>
+                            <option value="money">Financial worries or goals</option>
+                            <option value="health">Physical or mental health</option>
+                            <option value="family">Family relationships or pressure</option>
+                            <option value="friendship">Making or keeping friends</option>
+                            <option value="purpose">Finding meaning or purpose</option>
+                            <option value="confidence">Self-confidence or self-worth</option>
+                            <option value="change">Fear of big changes</option>
+                            <option value="creativity">Creative blocks or expression</option>
+                            <option value="addiction">Breaking bad habits</option>
+                            <option value="loneliness">Feeling lonely or isolated</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="personality">Your Personality Type</label>
+                        <select id="personality" name="personality">
+                            <option value="">Describe yourself</option>
+                            <option value="dreamer">The Dreamer - Always thinking about possibilities</option>
+                            <option value="planner">The Planner - Love structure and goals</option>
+                            <option value="adventurer">The Adventurer - Thrive on new experiences</option>
+                            <option value="nurturer">The Nurturer - Care deeply for others</option>
+                            <option value="thinker">The Thinker - Analyze everything deeply</option>
+                            <option value="creator">The Creator - Need to express yourself</option>
+                            <option value="leader">The Leader - Naturally take charge</option>
+                            <option value="freeSpirit">The Free Spirit - Resist labels and rules</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hobbies">What Brings You Joy?</label>
+                        <input type="text" id="hobbies" name="hobbies" placeholder="e.g., Painting, hiking, gaming, cooking, reading...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dreams">What's Your Biggest Dream?</label>
+                        <textarea id="dreams" name="dreams" rows="2" placeholder="If anything was possible, what would you do?"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fears">What Are You Most Afraid Of?</label>
+                        <textarea id="fears" name="fears" rows="2" placeholder="What keeps you up at night?"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="currentSituation">Tell Me More About Your Situation</label>
+                        <textarea id="currentSituation" name="currentSituation" rows="3" placeholder="What's really going on in your life right now? Be honest - I'm you from the future, remember?"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        Reveal My Future Message
+                    </button>
+                </form>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingSection" class="card hidden">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>🔮 Connecting through time...</p>
+                </div>
+            </div>
+
+            <!-- Message Display -->
+            <div id="messageSection" class="card hidden">
+                <div class="message-header">
+                    <h2 class="card-title">💌 Your Message From The Future</h2>
+                    <div class="divider"></div>
+                </div>
+
+                <div class="message-content">
+                    <div id="previewText" class="message-text"></div>
+                    
+                    <div id="lockedContent" class="locked-content hidden">
+                        <div id="remainingText" class="message-text blurred"></div>
+                        <div class="unlock-overlay">
+                            <div class="unlock-content">
+                                <p>Unlock your complete future message</p>
+                                <button class="btn-primary" id="unlockBtn">Unlock Full Message – ₹29</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="fullText" class="message-text hidden"></div>
+                </div>
+
+                <div class="typing-indicator hidden" id="typingIndicator">
+                    <div class="dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+
+                <div class="action-buttons hidden" id="actionButtons">
+                    <button class="btn-secondary" id="tryAgainBtn">Try Again</button>
+                    <button class="btn-secondary" id="shareBtn">Share Message</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="script.jsx"></script>
+</body>
+</html>
